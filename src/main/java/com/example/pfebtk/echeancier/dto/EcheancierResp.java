@@ -2,8 +2,10 @@ package com.example.pfebtk.echeancier.dto;
 
 import com.example.pfebtk.demande.dto.DemandeResp;
 import com.example.pfebtk.echeancier.entity.StatutEcheance;
+import lombok.Builder;
 
 import java.time.LocalDate;
+@Builder
 
 public record EcheancierResp(
 

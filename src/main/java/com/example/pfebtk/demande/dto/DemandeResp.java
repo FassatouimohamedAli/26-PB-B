@@ -4,10 +4,12 @@ import com.example.pfebtk.annonce.dto.AnnonceResp;
 import com.example.pfebtk.annonce.entity.ConventionType;
 import com.example.pfebtk.demande.entity.DemandeStatut;
 import jakarta.persistence.Column;
+import lombok.Builder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@Builder
 public record DemandeResp(
 
         Long idDemande,

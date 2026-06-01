@@ -1,6 +1,7 @@
 package com.example.pfebtk.echeancier.service;
 
 import com.example.pfebtk.annonce.dto.event.WsEvent;
+import com.example.pfebtk.auth.service.email.EmailService;
 import com.example.pfebtk.demande.entity.DemandeAdhesion;
 import com.example.pfebtk.echeancier.dto.EcheancierMapper;
 import com.example.pfebtk.echeancier.dto.EcheancierResp;
@@ -15,16 +16,21 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class EcheancierService {
-@Autowired
-    private  EcheancierRepo repo;
+    @Autowired
+    private EcheancierRepo repo;
     @Autowired
     private EcheancierMapper mapper;
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
+
+    @Autowired
+    private EmailService emailService;
 
     // GENERATION AUTOMATIQUE
 
@@ -130,8 +136,8 @@ public class EcheancierService {
     @Scheduled(fixedRate = 3000)
     @Transactional
     public void updateStatus() {
-        // LocalDate today = LocalDate.now().plusMonths(3);
-       LocalDate today = LocalDate.now();
+        //LocalDate today = LocalDate.now().plusMonths(3);
+        LocalDate today = LocalDate.now();
 
         List<Echeancier> list = repo.findAll();
 
@@ -210,12 +216,11 @@ public class EcheancierService {
     }
 
 
-
     // GET Alll
 
     public List<EcheancierResp> getAll() {
         updateStatus();
-        return repo.findAll()
+        return repo.findAllOrderByStatut()
                 .stream()
                 .map(mapper::toResponse)
                 .toList();
@@ -238,12 +243,25 @@ public class EcheancierService {
     }
 
 
-    // SCHEDULER AUTO
-    // chaque nuit
+    @Scheduled(cron = "0 0 8 * * MON")
+    @Transactional
+    public void notifyRetardsGrouped() {
 
-//    @Scheduled(cron = "0 0 0 * * *")
-//    public void autoUpdateStatus() {
-//
-//        updateStatus();
-//    }
+        List<Echeancier> retards =
+                repo.findByPayeFalseAndDateEcheanceBefore(LocalDate.now());
+
+        Map<String, List<Echeancier>> grouped =
+                retards.stream()
+                        .collect(Collectors.groupingBy(
+                                e -> e.getDemande().getUser().getEmail()
+                        ));
+
+        for (Map.Entry<String, List<Echeancier>> entry : grouped.entrySet()) {
+
+            emailService.sendRetardEcheancierGrouped(
+                    entry.getKey(),
+                    entry.getValue()
+            );
+        }
+    }
 }
