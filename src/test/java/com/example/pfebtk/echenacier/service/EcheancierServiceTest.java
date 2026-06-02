@@ -389,6 +389,31 @@ class EcheancierServiceTest {
         }
 
         @Test
+        @DisplayName("getRetards - doit retourner uniquement les échéances EN_RETARD")
+        void getRetards_DoitRetournerUniquementRetards() {
+
+            Echeancier retard1 = createEcheancier(1L, StatutEcheance.EN_RETARD, false);
+            Echeancier retard2 = createEcheancier(2L, StatutEcheance.EN_RETARD, false);
+
+            Echeancier paye = createEcheancier(3L, StatutEcheance.PAYE, true);
+            Echeancier avenir = createEcheancier(4L, StatutEcheance.A_VENIR, false);
+
+            when(repo.findAll()).thenReturn(List.of(retard1, retard2, paye, avenir));
+
+            when(mapper.toResponse(retard1)).thenReturn(createResp(1L, StatutEcheance.EN_RETARD));
+            when(mapper.toResponse(retard2)).thenReturn(createResp(2L, StatutEcheance.EN_RETARD));
+
+            List<EcheancierResp> result = echeancierService.getRetards();
+
+            assertThat(result).hasSize(2);
+            assertThat(result)
+                    .extracting(EcheancierResp::id)
+                    .containsExactly(1L, 2L);
+
+            verify(repo, times(1)).findAll();
+        }
+
+        @Test
         @DisplayName("getRetards - aucun retard retourne liste vide")
         void getRetards_AucunRetard_RetourneListeVide() {
             Echeancier e1 = createEcheancier(1L, StatutEcheance.PAYE, true);
@@ -418,14 +443,16 @@ class EcheancierServiceTest {
         @Test
         @DisplayName("getAll - doit retourner toutes les échéances")
         void getAll_DoitRetournerToutesEcheances() {
-            List<Echeancier> echeances = Arrays.asList(echeancier);
-            when(repo.findAll()).thenReturn(echeances);
-            when(mapper.toResponse(echeancier)).thenReturn(echeancierResp);
+
+            Echeancier e = createEcheancier(1L, StatutEcheance.A_VENIR, false);
+
+            when(repo.findAllOrderByStatut()).thenReturn(List.of(e));
+            when(mapper.toResponse(any(Echeancier.class))).thenReturn(echeancierResp);
 
             List<EcheancierResp> result = echeancierService.getAll();
 
             assertThat(result).hasSize(1);
-            // CORRIGÉ: Accepte 1 ou 2 appels car getAll() appelle updateStatus()
+
             verify(repo, atLeastOnce()).findAll();
         }
     }
