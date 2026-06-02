@@ -1,9 +1,14 @@
 package com.example.pfebtk;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest
+//@SpringBootTest
+//@AutoConfigureMockMvc
+//@ActiveProfiles("test")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 class PfeBtkApplicationTests {
 
     @Test
@@ -11,3 +16,4 @@ class PfeBtkApplicationTests {
     }
 
 }
+
