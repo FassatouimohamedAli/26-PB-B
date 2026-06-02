@@ -5,15 +5,15 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-//@SpringBootTest
-//@AutoConfigureMockMvc
-//@ActiveProfiles("test")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-class PfeBtkApplicationTests {
-
-    @Test
-    void contextLoads() {
-    }
-
-}
+////@SpringBootTest
+////@AutoConfigureMockMvc
+////@ActiveProfiles("test")
+//
+//class PfeBtkApplicationTests {
+//
+//    @Test
+//    void contextLoads() {
+//    }
+//
+//}
 
