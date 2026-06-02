@@ -14,8 +14,7 @@ import java.time.LocalDateTime;
 
 /**
  * Entité principale représentant une demande d'adhésion à un produit.
- * Elle passe par deux niveaux de validation : Amicale puis RH.
- * Remplace l'ancienne entité Reservation.
+ * Elle passe par deux niveaux de validation : Amicale
  */
 
 
@@ -146,8 +145,6 @@ public class DemandeAdhesion {
 
     @Column(name = "DATE_F")
     private LocalDate dateFin;
-
-
 
 
 
