@@ -16,6 +16,8 @@ import com.example.pfebtk.demande.dto.DemandeResp;
 import com.example.pfebtk.demande.entity.DemandeAdhesion;
 import com.example.pfebtk.demande.entity.DemandeStatut;
 import com.example.pfebtk.demande.entity.Frequence;
+import com.example.pfebtk.demande.exception.DemandeDejaExisteException;
+import com.example.pfebtk.demande.exception.PlusDePlaceException;
 import com.example.pfebtk.demande.repository.DemandeAdhesionRepository;
 import com.example.pfebtk.echeancier.service.EcheancierService;
 import com.example.pfebtk.file.service.FileStorageService;
@@ -69,10 +71,10 @@ private EcheancierService echeancierService ;
                         "Annonce introuvable : " + req.annonce()));
 
         if (demandeAdhesionRepository.existsByUserUnixAndAnnonceIdAndStatutIn(unix ,annonce.getId(),List.of(DemandeStatut.EN_ATTENTE,DemandeStatut.VALIDEE)) ) {
-            throw new RuntimeException("Interdit de faire autre demande !");
+            throw new DemandeDejaExisteException("Vous avez déjà une demande active pour cette annonce");
         }
         if (annonce.getMaxReservations() <= 0 ) {
-            throw new RuntimeException("Plus de places disponibles pour cette annonce !");
+            throw new PlusDePlaceException("Plus de places disponibles pour cette annonce");
         }
         // Sauvegarder convention PDF si fournie
         Convention convention = null;
@@ -96,7 +98,7 @@ private EcheancierService echeancierService ;
                 .user(user)
                 .annonce(annonce)
                 .conventionSigne(convention)
-                //.codeClient(user.getCuti())
+
                 .codeClient(req.codeClient())
                 .numeroTel(req.numeroTel())
                 .dateDemande(LocalDateTime.now())
@@ -121,6 +123,8 @@ DemandeAdhesion demandeAdhesion = demandeAdhesionRepository.save(demande) ;
         DemandeAdhesion demande = demandeAdhesionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException(
                         "Demande introuvable : " + id));
+
+
 
         // Vérifier que c'est bien l'employé qui supprime
         if (!demande.getUser().getUnix().equals(unix)) {

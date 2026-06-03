@@ -11,6 +11,10 @@ import com.example.pfebtk.annonce.repository.AnnonceRepo;
 import com.example.pfebtk.annonce.repository.ConventionRepo;
 import com.example.pfebtk.auth.entity.User;
 import com.example.pfebtk.auth.repository.UserRepo;
+import com.example.pfebtk.demande.entity.DemandeAdhesion;
+import com.example.pfebtk.demande.repository.DemandeAdhesionRepository;
+import com.example.pfebtk.echeancier.entity.Echeancier;
+import com.example.pfebtk.echeancier.repository.EcheancierRepo;
 import com.example.pfebtk.file.service.FileStorageService;
 import com.example.pfebtk.image.service.ImageService;
 import jakarta.transaction.Transactional;
@@ -41,8 +45,11 @@ public class AnnonceService {
     private AnnonceMapper annonceMapper;
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
+@Autowired
+private DemandeAdhesionRepository demandeRepo ;
 
-
+@Autowired
+private EcheancierRepo echeancierRepo ;
     @Transactional
     public AnnonceResp createAnnonce(String unix, AnnonceReq request) throws Exception {
 
@@ -143,6 +150,18 @@ public class AnnonceService {
         Annonce annonce = annonceRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Annonce introuvable !"));
 
+        List<DemandeAdhesion> demandes = demandeRepo.findByAnnonceId(id);
+        for (DemandeAdhesion demande : demandes) {
+
+            // 2. supprimer échéanciers
+            List<Echeancier> echeanciers =
+                    echeancierRepo.findByDemande_IdDemande(demande.getIdDemande());
+
+            echeancierRepo.deleteAll(echeanciers);
+
+            // 3. supprimer demande
+            demandeRepo.delete(demande);
+        }
         // supprimer fichier convention si existe
         if (annonce.getConvention() != null) {
             fileService.deleteConvention(annonce.getConvention().getFilePath());

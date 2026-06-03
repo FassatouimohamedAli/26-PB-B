@@ -5,6 +5,7 @@ import com.example.pfebtk.annonce.dto.AnnonceResp;
 import com.example.pfebtk.demande.dto.DecisionAmicaleRequest;
 import com.example.pfebtk.demande.dto.DemandeReq;
 import com.example.pfebtk.demande.dto.DemandeResp;
+import com.example.pfebtk.demande.exception.SignatureNotDetectedException;
 import com.example.pfebtk.demande.service.DemandeService;
 import com.example.pfebtk.signatureDetection.service.SignatureDetectionService;
 import com.example.pfebtk.utils.JwtUtil;
@@ -44,9 +45,15 @@ public class DemandeController {
         }
 
         if (file != null && !file.isEmpty()) {
-            if (!detectionService.detectSignature(file)) {
-                return ResponseEntity.badRequest()
-                        .body("La convention n'est pas signée");
+            try {
+                boolean signed = detectionService.detectSignature(file);
+
+                if (!signed) {
+                    throw new SignatureNotDetectedException("La convention n'est pas signée");
+                }
+
+            } catch (Exception e) {
+                throw new SignatureNotDetectedException("Erreur lors de la détection de signature");
             }
         }
 

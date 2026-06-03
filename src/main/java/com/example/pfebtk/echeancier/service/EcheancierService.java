@@ -136,8 +136,8 @@ public class EcheancierService {
     @Scheduled(fixedRate = 3000)
     @Transactional
     public void updateStatus() {
-        //LocalDate today = LocalDate.now().plusMonths(3);
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now().plusMonths(3);
+        //LocalDate today = LocalDate.now();
 
         List<Echeancier> list = repo.findAll();
 
