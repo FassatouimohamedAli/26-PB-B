@@ -42,7 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String jwt = authHeader.substring(7);
         // Vérifie que le JWT n'est pas vide
         if (jwt.isEmpty()) {
-            filterChain.doFilter(request, response);
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Empty token");
             return;
         }
 
@@ -51,7 +51,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
         if (!"access".equals(type)) {
-            filterChain.doFilter(request, response);
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token type");
+            return;
+        }
+
+        if (!jwtUtil.validateToken(jwt)) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
             return;
         }
 

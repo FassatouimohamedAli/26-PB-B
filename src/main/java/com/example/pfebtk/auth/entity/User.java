@@ -1,5 +1,6 @@
 package com.example.pfebtk.auth.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -42,7 +43,7 @@ public class User implements UserDetails {
 
     @Column(name = "SUS", length = 1)
     private String sus; // 'n' = actif, 'o' = suspendu
-
+    @JsonIgnore
     @Column(name = "PWD", length = 100)
     private String pwd;
 
@@ -51,7 +52,7 @@ public class User implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + puti.trim()));
     }
-
+    @JsonIgnore
     @Override
     public String getPassword() {
         return pwd;

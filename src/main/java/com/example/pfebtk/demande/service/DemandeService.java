@@ -16,6 +16,7 @@ import com.example.pfebtk.demande.dto.DemandeResp;
 import com.example.pfebtk.demande.entity.DemandeAdhesion;
 import com.example.pfebtk.demande.entity.DemandeStatut;
 import com.example.pfebtk.demande.entity.Frequence;
+import com.example.pfebtk.demande.exception.ConventionSignerException;
 import com.example.pfebtk.demande.exception.DemandeDejaExisteException;
 import com.example.pfebtk.demande.exception.PlusDePlaceException;
 import com.example.pfebtk.demande.repository.DemandeAdhesionRepository;
@@ -23,6 +24,7 @@ import com.example.pfebtk.echeancier.service.EcheancierService;
 import com.example.pfebtk.file.service.FileStorageService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -81,12 +83,12 @@ private EcheancierService echeancierService ;
         if (req.conventionSigne() != null
                 && !req.conventionSigne().isEmpty()) {
             if (fileService.isPdf(req.conventionSigne())) {
-                String filename = fileService.saveConventionSigned(
-                        req.conventionSigne());
+                String filename = fileService.saveConventionSigned(req.conventionSigne());
                 convention = Convention.builder()
                         .filePath(filename)
                         .type(ConventionType.SIGNER)
                         .build();
+
                 convention = conventionRepo.save(convention);
             } else {
                 throw new IllegalArgumentException(
@@ -98,7 +100,6 @@ private EcheancierService echeancierService ;
                 .user(user)
                 .annonce(annonce)
                 .conventionSigne(convention)
-
                 .codeClient(req.codeClient())
                 .numeroTel(req.numeroTel())
                 .dateDemande(LocalDateTime.now())
@@ -309,6 +310,18 @@ DemandeAdhesion demandeAdhesion = demandeAdhesionRepository.save(demande) ;
                     throw new RuntimeException("Durée doit être multiple de 12");
             }
         }
+    }
+
+
+    public Resource downloadConventionSigne(Long id) {
+        DemandeAdhesion d = demandeAdhesionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("demande introuvable !"));
+
+        if (d.getConventionSigne() == null) {
+            throw new ConventionSignerException("Aucune convention pour cette demande !");
+        }
+
+        return fileService.loadConventionSigned(d.getConventionSigne().getFilePath());
     }
 
 

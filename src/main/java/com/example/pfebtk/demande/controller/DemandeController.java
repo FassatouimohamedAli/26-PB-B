@@ -44,6 +44,7 @@ public class DemandeController {
             return ResponseEntity.badRequest().body("Problème de Header");
         }
 
+
         if (file != null && !file.isEmpty()) {
             try {
                 boolean signed = detectionService.detectSignature(file);
@@ -67,6 +68,8 @@ public class DemandeController {
                 commentaire,
                 file
         );
+
+
 
         return ResponseEntity.ok(demandeService.creerDemande(unix, req));
     }

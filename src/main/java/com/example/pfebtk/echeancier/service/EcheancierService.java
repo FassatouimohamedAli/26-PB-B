@@ -136,8 +136,8 @@ public class EcheancierService {
     @Scheduled(fixedRate = 3000)
     @Transactional
     public void updateStatus() {
-        LocalDate today = LocalDate.now().plusMonths(3);
-        //LocalDate today = LocalDate.now();
+        // today = LocalDate.now().plusMonths(14);
+        LocalDate today = LocalDate.now();
 
         List<Echeancier> list = repo.findAll();
 
@@ -207,7 +207,7 @@ public class EcheancierService {
             Long demandeId
     ) {
 
-        //updateStatus();
+        updateStatus();
 
         return repo.findByDemande_IdDemande(demandeId)
                 .stream()

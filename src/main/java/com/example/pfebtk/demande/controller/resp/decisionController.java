@@ -5,6 +5,9 @@ import com.example.pfebtk.demande.dto.DemandeResp;
 import com.example.pfebtk.demande.service.DemandeService;
 import com.example.pfebtk.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,5 +54,17 @@ public class decisionController {
     @GetMapping("/demandes")
     public ResponseEntity<List<DemandeResp>> getAll() {
         return ResponseEntity.ok(demandeService.getDemandes());
+    }
+
+
+
+    @GetMapping("/demande/conventionSigne/download/{id}")
+    public ResponseEntity<Resource> download(@PathVariable Long id) {
+        Resource resource = demandeService.downloadConventionSigne(id);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 }

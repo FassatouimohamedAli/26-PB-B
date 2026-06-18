@@ -54,7 +54,7 @@ public class DemandeAdhesion {
      * Contient le type et le chemin du fichier PDF.
      * Remplace l'ancien champ CONVENTION_A_SIGNER_PDF VARCHAR.
      */
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "CONVENTION_SIGNE_ID")
     private Convention conventionSigne;
 

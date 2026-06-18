@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/emp")
-public class empEcheancierService {
+public class empEcheancierController {
     @Autowired
     private EcheancierService echeancierService;
     // GET ECHEANCIERS D'UNE DEMANDE
